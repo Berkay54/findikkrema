@@ -115,7 +115,7 @@
       radial-gradient(50% 80% at 100% 60%, rgba(244,230,208,.35), transparent 70%);
     opacity:0;transition:opacity 1.6s var(--ease)}
   .is-revealed .hero__veil{opacity:1}
-  .grain{position:absolute;inset:-50%;pointer-events:none;opacity:.07;mix-blend-mode:multiply;
+  .grain{position:absolute;inset:-50%;pointer-events:none;opacity:.05;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
   .hero__inner{position:relative;z-index:5;height:100%;padding:140px var(--gutter) 64px;display:grid;grid-template-columns:40% 1fr;grid-template-rows:1fr auto;align-items:center}
@@ -224,9 +224,9 @@
     background:radial-gradient(42% 52% at 50% 50%,rgba(255,240,215,.14),transparent 70%),
       linear-gradient(90deg,rgba(0,0,0,.3),transparent 32%,transparent 68%,rgba(0,0,0,.3)),
       linear-gradient(to bottom,rgba(0,0,0,.12),transparent 25%,transparent 75%,rgba(0,0,0,.22))}
-  .pick::after{content:"";position:absolute;inset:-120px;pointer-events:none;z-index:0;opacity:.08;
+  .pick::after{content:"";position:absolute;inset:-260px;pointer-events:none;z-index:0;opacity:.08;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'%3E%3Cpath d='M0 40 C 20 10, 60 10, 80 40 S 140 70, 160 40' fill='none' stroke='%23fff' stroke-width='9' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-size:160px 80px;transform:rotate(-24deg);animation:waves 40s linear infinite}
+    background-size:160px 80px;transform:rotate(-24deg);will-change:transform;animation:waves 40s linear infinite}
   .pick>*{position:relative;z-index:1}
 
   /* dev silik oran yazısı */
@@ -372,7 +372,7 @@
   }
 
   /* ---------- 4. bölüm: Hikâyemiz (süzülen üç kavanoz) ---------- */
-  @keyframes waves{to{background-position:160px 80px}} /* seçim ekranının dalga deseni bunu kullanır */
+  @keyframes waves{from{transform:rotate(-24deg) translate3d(0,0,0)}to{transform:rotate(-24deg) translate3d(160px,80px,0)}} /* GPU ile kayar */
   .story{position:relative;overflow:hidden;background:#1a0e0b;color:var(--cream);
     min-height:max(100svh,720px);display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);align-items:center;gap:clamp(28px,5vw,90px);
     padding:clamp(80px,9vw,140px) var(--gutter)}
@@ -383,7 +383,7 @@
     background-image:radial-gradient(1.4px 1.4px at 20px 30px,rgba(240,207,148,.8),transparent 60%),radial-gradient(1px 1px at 140px 90px,rgba(244,230,208,.6),transparent 60%),
       radial-gradient(1.8px 1.8px at 90px 170px,rgba(240,207,148,.55),transparent 60%),radial-gradient(1px 1px at 210px 220px,rgba(244,230,208,.5),transparent 60%);
     background-size:240px 260px;animation:dust 60s linear infinite}
-  .story__dust.b{opacity:.35;background-size:380px 340px;animation-duration:95s;filter:blur(.6px)}
+  .story__dust.b{opacity:.35;background-size:380px 340px;animation-duration:95s}
   @keyframes dust{to{transform:translateY(33%)}}
   .story>*:not(.story__dust){position:relative;z-index:1}
 
@@ -594,7 +594,7 @@
     linear-gradient(to bottom,#4c281c 0%,#5a2d22 22%,#4f221b 42%,#461c16 56%,#26110a 64%,#5e3a26 72%,#7f5236 84%,#8a5b3d 100%)}
   body .hero__media video,body .hero__media img{object-position:50% 50%}
   body .hero__veil{opacity:1;background:linear-gradient(to top,rgba(26,8,8,.35) 0%,transparent 26%)}
-  body .hero .grain{mix-blend-mode:overlay;opacity:.08}
+  body .hero .grain{opacity:.06}
   body .header{color:var(--cream)}
   body .header .logo{color:var(--gold-soft)}
   body .bag i{background:var(--gold-soft);color:#2a0f0c}
@@ -644,11 +644,17 @@
   body .header{position:fixed;top:0;left:0;right:0;
     transition:opacity 1.2s var(--ease) .3s,transform 1.2s var(--ease) .3s,background-color .45s ease,padding .45s ease,box-shadow .45s ease}
   .scrolled body .header,html.scrolled .header{padding-top:12px;padding-bottom:12px;background:rgba(30,11,9,.74);
-    -webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);box-shadow:0 1px 0 rgba(244,230,208,.1)}
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 1px 0 rgba(244,230,208,.1)}
   html.scrolled .header .logo svg{height:0;opacity:0;margin:0;transition:height .4s,opacity .3s}
   .header .logo svg{transition:height .4s,opacity .3s}
   html.scrolled .header .logo b{font-size:20px}
   .menu-open .header{opacity:0;pointer-events:none}
+
+  /* ---------- Performans: ekranda olmayan bölümlerin sürekli animasyonları durur ---------- */
+  .is-off.pick::after,.is-off .story__dust,.is-off .sjar img,.is-off .story__jars::after{animation-play-state:paused}
+  .story__dust,.sjar img{will-change:transform}
+  /* en alttaki footer, ekrana yaklaşana kadar tarayıcı tarafından çizilmez */
+  .foot{content-visibility:auto;contain-intrinsic-size:auto 1100px}
 
   /* ---------- Fiyat tipografisi: Bodoni, küçük ₺ ve yukarıda kuruş ---------- */
   .price,.btn .price,.pill .price,.menu__card .price{font-family:"Bodoni Moda","Bodoni 72",Didot,serif;font-weight:500;font-style:normal;
@@ -892,10 +898,10 @@
   <!-- orta: tek kavanoz ve altında oklar -->
   <div class="pick__center">
   <div class="pick__stage" id="pickStage" role="group" aria-roledescription="karusel" aria-label="Ürün seçimi">
-    <div class="jar" data-theme="burgundy"><picture><source srcset="assets/jar-35.webp" type="image/webp"><img src="assets/jar-35.png" alt="Chaqlet Kakaolu Fındık Kreması %35, bordo etiketli kavanoz" draggable="false"></picture></div>
-    <div class="jar" data-theme="navy"><picture><source srcset="assets/jar-40.webp" type="image/webp"><img src="assets/jar-40.png" alt="Chaqlet Kakaolu Fındık Kreması %40, lacivert etiketli kavanoz" draggable="false"></picture></div>
-    <div class="jar" data-theme="gold"><picture><source srcset="assets/jar-55.webp" type="image/webp"><img src="assets/jar-55.png" alt="Chaqlet Kakaolu Fındık Kreması %55, altın etiketli kavanoz" draggable="false"></picture></div>
-    <div class="jar" data-theme="green"><picture><source srcset="assets/jar-70.webp" type="image/webp"><img src="assets/jar-70.png" alt="Chaqlet Kakaolu Fındık Kreması %70, yeşil etiketli kavanoz" draggable="false"></picture></div>
+    <div class="jar" data-theme="burgundy"><picture><source srcset="assets/jar-35.webp" type="image/webp"><img src="assets/jar-35.png" alt="Chaqlet Kakaolu Fındık Kreması %35, bordo etiketli kavanoz" draggable="false" loading="lazy" decoding="async"></picture></div>
+    <div class="jar" data-theme="navy"><picture><source srcset="assets/jar-40.webp" type="image/webp"><img src="assets/jar-40.png" alt="Chaqlet Kakaolu Fındık Kreması %40, lacivert etiketli kavanoz" draggable="false" loading="lazy" decoding="async"></picture></div>
+    <div class="jar" data-theme="gold"><picture><source srcset="assets/jar-55.webp" type="image/webp"><img src="assets/jar-55.png" alt="Chaqlet Kakaolu Fındık Kreması %55, altın etiketli kavanoz" draggable="false" loading="lazy" decoding="async"></picture></div>
+    <div class="jar" data-theme="green"><picture><source srcset="assets/jar-70.webp" type="image/webp"><img src="assets/jar-70.png" alt="Chaqlet Kakaolu Fındık Kreması %70, yeşil etiketli kavanoz" draggable="false" loading="lazy" decoding="async"></picture></div>
   </div>
     <div class="side__nav">
       <button type="button" id="pickPrev" aria-label="Önceki ürün"><svg viewBox="0 0 24 24"><path d="M20 12H5m5-5-5 5 5 5"/></svg></button>
@@ -910,10 +916,10 @@
     <p class="pcopy__eyebrow">Koleksiyon</p>
     <h4>Fındığın <em>dört farklı hâli.</em></h4>
     <div class="thumbs" id="pickThumbs">
-      <button type="button" aria-label="%35 Fındık"><img src="assets/jar-35.webp" alt=""></button>
-      <button type="button" aria-label="%40 Fındık"><img src="assets/jar-40.webp" alt=""></button>
-      <button type="button" aria-label="%55 Fındık"><img src="assets/jar-55.webp" alt=""></button>
-      <button type="button" aria-label="%70 Fındık"><img src="assets/jar-70.webp" alt=""></button>
+      <button type="button" aria-label="%35 Fındık"><img src="assets/jar-35.webp" alt="" loading="lazy" decoding="async"></button>
+      <button type="button" aria-label="%40 Fındık"><img src="assets/jar-40.webp" alt="" loading="lazy" decoding="async"></button>
+      <button type="button" aria-label="%55 Fındık"><img src="assets/jar-55.webp" alt="" loading="lazy" decoding="async"></button>
+      <button type="button" aria-label="%70 Fındık"><img src="assets/jar-70.webp" alt="" loading="lazy" decoding="async"></button>
     </div>
     <div class="side__name" aria-live="polite">
       <span>%35 Fındık<small>Yoğun Kakao · Dengeli Lezzet</small></span>
@@ -1050,7 +1056,10 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   frame.addEventListener('transitionend', e => { if (e.propertyName === 'clip-path') sec.classList.add('settled'); });
   if (reduce || !('IntersectionObserver' in window)) { sec.classList.add('in', 'settled'); return; }
-  v.preload = 'auto';
+  // video açılışta değil, bölüm yaklaşınca (yaklaşık bir ekran önce) indirilmeye başlar
+  new IntersectionObserver((es, o) => es.forEach(e => {
+    if (e.isIntersecting) { v.preload = 'auto'; v.load(); o.disconnect(); }
+  }), { rootMargin:'100% 0px 100% 0px' }).observe(frame);
   new IntersectionObserver(es => es.forEach(e => {
     if (e.isIntersecting) { sec.classList.add('in'); v.play().catch(() => {}); }
     else v.pause();
@@ -1066,32 +1075,36 @@
   const pin = document.getElementById('ritualPin');
   const body = pin.querySelector('.ritual__body');
   const STEP = .5;   // her not için kaç ekran boyu kaydırma
-  let cur = 0, stickyTop = 0;
+  let cur = 0, stickyTop = 0, run = 0, centers = [], flowH = 0, near = true, raf = 0;
 
   // Video + notlar ekranın ortasına sabitlenir; sabitken kaydırma notları ilerletir.
   // Son not gelince sabitleme biter ve sayfa normal kaydırmaya döner.
+  // Ölçüler sadece boyut değişince alınır; kaydırma sırasında yalnızca yazılır (layout zorlanmaz).
   const layout = () => {
     const vh = innerHeight, bh = body.offsetHeight;
     stickyTop = Math.max(16, (vh - bh) / 2);
     body.style.position = 'sticky';
     body.style.top = stickyTop + 'px';
     pin.style.height = (bh + (items.length - 1) * vh * STEP) + 'px';
+    run = pin.offsetHeight - bh;
+    flowH = flow.clientHeight;
+    centers = items.map(el => el.offsetTop + el.offsetHeight / 2);
   };
   const measure = () => {
-    const run = pin.offsetHeight - body.offsetHeight;
     const p = run > 0 ? Math.min(Math.max((stickyTop - pin.getBoundingClientRect().top) / run, 0), 1) : 0;
     return p * (items.length - 1);
   };
-  // konum her kaydırmada doğrudan yazılır; yumuşaklığı CSS geçişi verir
   const paint = () => {
+    raf = 0;
     cur = measure();
     const i = Math.min(Math.floor(cur), items.length - 2), f = cur - i;
-    const c = el => el.offsetTop + el.offsetHeight / 2;
-    const center = c(items[i]) + (c(items[i + 1]) - c(items[i])) * f;
-    track.style.transform = `translate3d(0,${(flow.clientHeight / 2 - center).toFixed(1)}px,0)`;
+    const center = centers[i] + (centers[i + 1] - centers[i]) * f;
+    track.style.transform = `translate3d(0,${(flowH / 2 - center).toFixed(1)}px,0)`;
     items.forEach((el, k) => el.style.setProperty('--o', (1 - Math.min(Math.abs(k - cur), 1) * .65).toFixed(3)));
   };
-  addEventListener('scroll', paint, { passive:true });
+  // kaydırmada en fazla kare başına bir kez ve sadece bölüm ekrana yakınken çalışır
+  addEventListener('scroll', () => { if (near && !raf) raf = requestAnimationFrame(paint); }, { passive:true });
+  if ('IntersectionObserver' in window) new IntersectionObserver(es => es.forEach(e => { near = e.isIntersecting; if (near) paint(); }), { rootMargin:'50% 0px 50% 0px' }).observe(pin);
   addEventListener('resize', () => { layout(); paint(); });
   addEventListener('load', () => { layout(); paint(); });
   layout(); paint();
@@ -1116,9 +1129,9 @@
   </div>
 
   <div class="story__jars" id="storyJars" aria-label="Chaqlet kavanozları">
-    <div class="sjar sjar--l"><img src="assets/plain-40.webp" alt="Chaqlet Kakaolu Fındık Kreması %40" loading="lazy"></div>
-    <div class="sjar sjar--r"><img src="assets/plain-70.webp" alt="Chaqlet Kakaolu Fındık Kreması %70" loading="lazy"></div>
-    <div class="sjar sjar--c"><img src="assets/plain-55.webp" alt="Chaqlet Kakaolu Fındık Kreması %55" loading="lazy"></div>
+    <div class="sjar sjar--l"><img src="assets/plain-40.webp" alt="Chaqlet Kakaolu Fındık Kreması %40" loading="lazy" decoding="async"></div>
+    <div class="sjar sjar--r"><img src="assets/plain-70.webp" alt="Chaqlet Kakaolu Fındık Kreması %70" loading="lazy" decoding="async"></div>
+    <div class="sjar sjar--c"><img src="assets/plain-55.webp" alt="Chaqlet Kakaolu Fındık Kreması %55" loading="lazy" decoding="async"></div>
   </div>
 </section>
 
@@ -1315,6 +1328,12 @@
 
   const reveal = () => root.classList.add('is-revealed');
   requestAnimationFrame(() => root.classList.add('is-loaded'));
+
+  // ---- performans: sürekli dönen animasyonlar sadece bölüm ekrandayken çalışır ----
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('is-off', !e.isIntersecting)), { rootMargin:'10% 0px 10% 0px' });
+    document.querySelectorAll('#pick, #story').forEach(el => io.observe(el));
+  }
 
   // ---- sabit menü: biraz aşağı inince yarı şeffaf zemin alır ----
   const onHdr = () => root.classList.toggle('scrolled', scrollY > 40);
