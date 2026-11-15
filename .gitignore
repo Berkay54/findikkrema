@@ -1,0 +1,12 @@
+# Eski açık renkli hero yedeği ve ona ait, artık kullanılmayan dosyalar
+index-v1.html
+assets/hero.mp4
+assets/hero.webm
+assets/hero-scrub.mp4
+assets/hero-start.jpg
+assets/hero-end.jpg
+
+# Sistem dosyaları
+.DS_Store
+Thumbs.db
+desktop.ini
